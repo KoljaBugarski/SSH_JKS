@@ -4,10 +4,10 @@ clc;
 
 %% parametri
 
-n=5; % koliko dimera
+n=7; % koliko dimera
 w=1;
 v=0.4;
-na_koja_mesta=[6 0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
+na_koja_mesta=[6 11 0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
 koliko_defekata=max(size(na_koja_mesta))-1;
 srednji_defekat=int8((koliko_defekata+1)/2);
 
