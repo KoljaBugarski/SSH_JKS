@@ -4,10 +4,10 @@ clc;
 
 %% parametri
 
-n=7; % koliko dimera
+n=11; % koliko dimera bez umetnutih, racunajuci dva kranja
 w=1;
 v=0.4;
-na_koja_mesta=[6 11 0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
+na_koja_mesta=[8 13 18 0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
 koliko_defekata=max(size(na_koja_mesta))-1;
 srednji_defekat=int8((koliko_defekata+1)/2);
 
@@ -452,7 +452,7 @@ title('Energije svojstvenih stanja sa thermal bathom')
 xlim([1 N]);
 
 % Zero mode sa thermal bathom
-for i=1:max(size(zero_mode_env))
+for i=1:max(size(zero_mode))
     if uporedi_kada_nema_thermal_bath==1
         vek_pom=zeros(1,N);
         vek_pom(2*n_okoline_levo+1:2*n_okoline_levo+2*n+koliko_defekata)=vek_E(:,zero_mode(i));
@@ -471,4 +471,50 @@ for i=1:max(size(zero_mode_env))
         a=koliko_defekata-1;
         title([num2str(i), '. zero moda sa thermal bathom. Br. talasovoda levo:' num2str(2*n_okoline_levo), '; Br. talasovoda desno:' num2str(2*n_okoline_desno)]);
     end
+end
+
+%% Evolucija sa thermal bathom
+
+% pocetni uslovi 
+poc_uslov=zeros(N,1);
+switch pocetni_uslov
+    case 0
+        poc_uslov(2*n_okoline_levo+na_koja_mesta(srednji_defekat))=1;
+    case 1
+        poc_uslov=vek_E_env(:,koji_sv_vektor);
+    case 2
+        for i=1:koliko_vek_u_sp_poz
+            poc_uslov=(1/(sqrt(koliko_vek_u_sp_poz)))*vek_E_env(:,n+i-1)+poc_uslov;
+        end
+    case 3
+        poc_uslov=vek_E_env(:,n);
+end
+
+ran=ones(N,1);
+options = odeset('RelTol',1e-9,'AbsTol',1e-9);
+[t,vek_t_env]=ode45(@nelinerani, t, poc_uslov, options, H_env, on_site, snaga, sp_mod, gh, ran);
+
+% Sta je uslo a sta je izaslo
+figure;                
+bar(1:N,abs(vek_t_env(1,:)).^2);    
+title('Vektor na ulazu, thermal bath');
+xlabel('Cvor');
+ylim([0 1])
+figure;                
+bar(1:N,abs(vek_t_env(t_br_tacaka,:)).^2);    
+title('Vektor na izlazu, thermal bath');
+xlabel('Cvor');
+ylim([0 1])
+
+%propagacija u vremenu 3d
+if tri_d
+    X=linspace(1,N,N);
+    figure;
+    mesh(X,t,abs(vek_t_env).^2);
+    colorbar;
+    title('Propagacija u vremnu, thermal bath');
+    xlabel('Cvorovi');
+    ylabel('Vreme');
+    xlim([1 (N)]);
+    ylim([0 t_kraj]);
 end
