@@ -260,7 +260,7 @@ end
 poc_uslov=zeros(2*n+koliko_defekata,1);
 switch pocetni_uslov
     case 0
-        poc_uslov(na_koja_mesta(srednji_defekat))=1;
+        poc_uslov(8)=1;
     case 1
         poc_uslov=vek_E(:,koji_sv_vektor);
     case 2
