@@ -4,10 +4,10 @@ clc;
 
 %% parametri
 
-n=11; % koliko dimera bez umetnutih, racunajuci dva kranja
+n=5; % koliko dimera bez umetnutih, racunajuci dva kranja
 w=1.2;
 v=0.5;
-na_koja_mesta=[8 13 18 0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
+na_koja_mesta=[0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
 koliko_defekata=max(size(na_koja_mesta))-1;
 srednji_defekat=int8((koliko_defekata+1)/2);
 
