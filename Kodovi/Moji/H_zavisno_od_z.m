@@ -67,10 +67,10 @@ vek_pravi(1,:)=poc_uslov;
 for i_t=1:t_br_tacaka
     tt=[t_pocetak+(i_t-1)*dt i_t*dt];
     options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-    [tt,vek_t]=ode45(@zavisno_z, tt, poc_uslov, options, H(:,:,i_t), sp_mod);  
-    poc_uslov=vek_t(max(size(tt)),:);
+    [ttt,vek_t]=ode45(@zavisno_z, tt, poc_uslov, options, H(:,:,i_t), sp_mod);  
+    poc_uslov=vek_t(max(size(ttt)),:);
     if i_t~=1
-        vek_pravi(i_t,:)=vek_t(max(size(tt)),:);
+        vek_pravi(i_t,:)=vek_t(max(size(ttt)),:);
     end
 end
 

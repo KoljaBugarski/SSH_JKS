@@ -4,10 +4,10 @@ clc;
 
 %% parametri
 
-n=5; % koliko dimera bez umetnutih, racunajuci dva kranja
+n=100; % koliko dimera bez umetnutih, racunajuci dva kranja
 w=1.2;
-v=0.5;
-na_koja_mesta=[0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
+v =0.5;
+na_koja_mesta=[85 0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
 koliko_defekata=max(size(na_koja_mesta))-1;
 srednji_defekat=int8((koliko_defekata+1)/2);
 
@@ -35,16 +35,13 @@ srednji_defekat=int8((koliko_defekata+1)/2);
 
 t_pocetak=0;
 t_kraj=50;
-dt=0.001;
+dt=0.01;
 t_br_tacaka=(t_kraj-t_pocetak)/dt;
 t=linspace(t_pocetak,t_kraj,t_br_tacaka);
 
 %nelinearnost
 on_site=0; %onsite disorder (mora i gh=1)
-gh=0; %0-oniste kroz hamiltonijan ili 1-kroz Schr. jednacinu (mora i on_site=1 da bi postojao)
 gama=0.02; % za onsite disorder
-
-snaga=0; % za postojanje snage u Schr. u jednacini
 
 sp_mod=0; % za postojanje sopstvene modulacije u Schr. jednacini
 
@@ -60,6 +57,7 @@ tri_d=1; % da li da crrta mesh ili ne
 tir_d_cvor_predstavljen_sa_dve_tacke_na_x_osi=1;% lepse se vidi ravan xy
 
 pocetni_uslov=0; % 0-u srednji defekat sva snaga, 1-neki od svojstevih vekota,2-lin superpozicija jednakih amplituda, 3-sta god 
+svo_polje_u_koji_talasovod=2*n+koliko_defekata;
 koji_sv_vektor=n;
 koliko_vek_u_sp_poz=3;
 
@@ -238,19 +236,39 @@ end
 
 % Crtanje svojstvenih energija
 figure;
+xx=1:(2*n+koliko_defekata);
 scatter(1:(2*n+koliko_defekata),E);
-title('Energije svojstvenih stanja')
+if w > v
+    title('Energije svojstvenih stanja, w>v')
+else
+    title('Energije svojstvenih stanja w<v')
+end
 
+axes('position',[.65 .175 .25 .25])
+box on % put box around new pair of axes
+indexOfInterest = (xx < zero_mode(max(size(zero_mode)))+2) & (xx > zero_mode(1)-2);
+scatter(xx(indexOfInterest),E(indexOfInterest));
+ylim([-0.5 0.5])
+xlim([zero_mode(1)-1 zero_mode(max(size(zero_mode)))+1])
+ 
 % Crtanje zero moda
-for i=1:max(size(zero_mode))
+for i=1:koliko_defekata+2
     figure;
     bar(1:(2*n+koliko_defekata),abs((vek_E(:,n+i-1))).^2);
     ylim([0 1]);
     a=koliko_defekata-1;
     if (a)
-        title([num2str(i), '. zero moda. Defekati na vise mesta']);
+        if w>v
+            title('Zero moda. Defekati na vise mesta. w>v');
+        else
+            title('Zero moda. Defekati na vise mesta. w<v');
+        end
     else
-        title([num2str(i), '. zero moda. Defekat na ' num2str(na_koja_mesta(1)), '. mestu']);
+        if w>v
+            title(['Zero moda. Defekat na ' num2str(na_koja_mesta(1)), '. mestu. w>v']);
+        else
+            title(['Zero moda. Defekat na ' num2str(na_koja_mesta(1)), '. mestu. w<v']);
+        end
     end
 end
 
@@ -260,7 +278,7 @@ end
 poc_uslov=zeros(2*n+koliko_defekata,1);
 switch pocetni_uslov
     case 0
-        poc_uslov(8)=1;
+        poc_uslov(svo_polje_u_koji_talasovod)=1;
     case 1
         poc_uslov=vek_E(:,koji_sv_vektor);
     case 2
@@ -306,30 +324,34 @@ end
 
 % onsite disorder
 ran=ones(2*n+koliko_defekata,1);
-if gh
-    for j=1:2*n+1
-        ran(j)=gama*ran(j)*(rand*2-1);
-    end
-    options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-    [t,vek_t]=ode45(@nelinerani, t, poc_uslov, options, Hn, on_site, snaga, sp_mod, gh, ran);
-else
-    if on_site
-        for i=1:1:2*n+koliko_defekata
-            Hn(i,i)=gama*(rand*2-1);
-        end
-    end
-    options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-    [t,vek_t]=ode45(@nelinerani, t, poc_uslov, options, Hn, on_site, snaga, sp_mod, gh, ran);
+for j=1:2*n+koliko_defekata
+    ran(j)=gama*ran(j)*(rand*2-1);
 end
+
+
+
+
+
+for i_t=1:t_br_tacaka
+    tt=[t_pocetak+(i_t-1)*dt i_t*dt];
+    options = odeset('RelTol',1e-9,'AbsTol',1e-9);
+    [ttt,vek_t]=ode45(@nelinerani, tt, poc_uslov, options, Hn, on_site, sp_mod, ran); 
+    poc_uslov=vek_t(max(size(ttt)),:);
+    if i_t~=1
+        vek_pravi(i_t,:)=vek_t(max(size(ttt)),:);
+    end
+end
+
+
 
 % Sta je uslo a sta je izaslo
 figure;                
-bar(1:2*n+koliko_defekata,abs(vek_t(1,:)).^2);    
+bar(1:2*n+koliko_defekata,abs(vek_pravi(1,:)).^2);    
 title('Vektor na ulazu');
 xlabel('Cvor');
 ylim([0 1])
 figure;                
-bar(1:2*n+koliko_defekata,abs(vek_t(t_br_tacaka,:)).^2);    
+bar(1:2*n+koliko_defekata,abs(vek_pravi(t_br_tacaka,:)).^2);    
 title('Vektor na izlazu');
 xlabel('Cvor');
 ylim([0 1])
@@ -338,7 +360,7 @@ ylim([0 1])
 if tri_d
     X=linspace(1,2*n+koliko_defekata,2*n+koliko_defekata);
     figure;
-    mesh(X,t,abs(vek_t).^2);
+    mesh(X,t,abs(vek_pravi).^2);
     colorbar;
     title('Propagacija u vremnu');
     xlabel('Cvorovi');
@@ -353,11 +375,11 @@ if tir_d_cvor_predstavljen_sa_dve_tacke_na_x_osi
         vek_tt=zeros(t_br_tacaka,2*(2*n+koliko_defekata)+1);
         for tt=1:1:t_br_tacaka
             for i=1:1:2*n+koliko_defekata
-                vek_tt(tt,i*2-1)=vek_t(tt,i);
-                vek_tt(tt,i*2)=vek_t(tt,i);
+                vek_tt(tt,i*2-1)=vek_pravi(tt,i);
+                vek_tt(tt,i*2)=vek_pravi(tt,i);
             end
         end
-        vek_tt(:,2*(2*n+koliko_defekata)+1)=vek_t(:,2*n+koliko_defekata);
+        vek_tt(:,2*(2*n+koliko_defekata)+1)=vek_pravi(:,2*n+koliko_defekata);
         X=linspace(1,2*(2*n+koliko_defekata)+1,2*(2*n+koliko_defekata)+1);
         figure;
         mesh(X,t,abs(vek_tt).^2);
@@ -375,7 +397,7 @@ maxx=0;
 P=zeros(t_br_tacaka,2*n+koliko_defekata);
 for tt=1:t_br_tacaka
     for j=1:2*n+koliko_defekata
-        P(tt,j)=conj(vek_t(tt,j))*transpose(vek_t(tt,j));
+        P(tt,j)=conj(vek_pravi(tt,j))*transpose(vek_pravi(tt,j));
     end
     pp=P(tt,1) + P(tt,2*n+koliko_defekata);
     if (pp>maxx)
@@ -387,134 +409,134 @@ end
 
 % crtanje vekotra sa najvecom snagaom na ivicama
 figure;                
-bar(1:2*n+koliko_defekata,abs(vek_t(vremeski_trenutak_tacka_snaga_max_na_ivicama,:)).^2);    
+bar(1:2*n+koliko_defekata,abs(vek_pravi(vremeski_trenutak_tacka_snaga_max_na_ivicama,:)).^2);    
 title(['Najveca snaga na ivicama. Vreme: ', num2str(vremeski_trenutak_snaga_max_na_ivicama)]);
 xlabel('Cvor');
 ylim([0 1])
 
 %% thermal bath
 
-H_env=zeros(N,N);
-for i=2:2*n_okoline_levo
-    if mod(i,2)==0
-        H_env(i,i-1)=v_env;
-        H_env(i-1,i)=v_env;
-    else
-        H_env(i,i-1)=w_env;
-        H_env(i-1,i)=w_env;
-    end
-end
-H_env(2*n_okoline_levo+1,2*n_okoline_levo)=veza_okoline_i_strukture;
-H_env(2*n_okoline_levo,2*n_okoline_levo+1)=veza_okoline_i_strukture;
-
-for i=2:2*n+koliko_defekata
-    H_env(2*n_okoline_levo+i,2*n_okoline_levo+i-1)=Hn(i,i-1);
-    H_env(2*n_okoline_levo+i-1,2*n_okoline_levo+i)=Hn(i-1,i);
-end
-
-H_env(2*n_okoline_levo+2*n+koliko_defekata+1,2*n_okoline_levo+2*n+koliko_defekata)=veza_okoline_i_strukture;
-H_env(2*n_okoline_levo+2*n+koliko_defekata,2*n_okoline_levo+2*n+koliko_defekata+1)=veza_okoline_i_strukture;
-for i=2*n_okoline_levo+2*n+koliko_defekata+2:N
-    if mod(n,2)==0
-        if mod(i,2)==0
-            H_env(i,i-1)=v_env;
-            H_env(i-1,i)=v_env;
-        else
-            H_env(i,i-1)=w_env;
-            H_env(i-1,i)=w_env;
-        end
-    else
-        if mod(i,2)==0
-            H_env(i,i-1)=w_env;
-            H_env(i-1,i)=w_env;
-        else
-            H_env(i,i-1)=v_env;
-            H_env(i-1,i)=v_env;
-        end
-    end
-end
-
-[vek_E_env,d_E_env]=eig(H_env); 
-E_env=zeros((N),1);
-i=0;
-for j=1:1:N
-    E_env(j)=d_E_env(j,j);           
-    if abs(E_env(j))<0.2           
-        i=i+1;
-        zero_mode_env(i)=j;
-    end
-end
-
-% Crtanje svojstvenih energija sa thermal bathom
-figure;
-scatter(1:N,E_env);
-title('Energije svojstvenih stanja sa thermal bathom')
-xlim([1 N]);
-
-% Zero mode sa thermal bathom
-for i=1:max(size(zero_mode))
-    if uporedi_kada_nema_thermal_bath==1
-        vek_pom=zeros(1,N);
-        vek_pom(2*n_okoline_levo+1:2*n_okoline_levo+2*n+koliko_defekata)=vek_E(:,zero_mode(i));
-        figure;
-        bar(1:N,abs(vek_pom).^2);
-        ylim([0 1]);
-        title(['Bez thermal bata ' num2str(i), '. zero moda']);
-        figure;
-        bar(1:N,abs((vek_E_env(:,zero_mode_env(i)))).^2);
-        ylim([0 1]);
-        title([num2str(i), '. zero moda sa thermal bathom. Br. talasovoda levo:' num2str(2*n_okoline_levo), '; Br. talasovoda desno:' num2str(2*n_okoline_desno)]);
-    else
-        figure;
-        bar(1:N,abs((vek_E_env(:,zero_mode_env(i)))).^2);
-        ylim([0 1]);
-        a=koliko_defekata-1;
-        title([num2str(i), '. zero moda sa thermal bathom. Br. talasovoda levo:' num2str(2*n_okoline_levo), '; Br. talasovoda desno:' num2str(2*n_okoline_desno)]);
-    end
-end
-
-%% Evolucija sa thermal bathom
-
-% pocetni uslovi 
-poc_uslov=zeros(N,1);
-switch pocetni_uslov
-    case 0
-        poc_uslov(2*n_okoline_levo+na_koja_mesta(srednji_defekat))=1;
-    case 1
-        poc_uslov=vek_E_env(:,koji_sv_vektor);
-    case 2
-        for i=1:koliko_vek_u_sp_poz
-            poc_uslov=(1/(sqrt(koliko_vek_u_sp_poz)))*vek_E_env(:,n+i-1)+poc_uslov;
-        end
-    case 3
-        poc_uslov=vek_E_env(:,n);
-end
-
-ran=ones(N,1);
-options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-[t,vek_t_env]=ode45(@nelinerani, t, poc_uslov, options, H_env, on_site, snaga, sp_mod, gh, ran);
-
-% Sta je uslo a sta je izaslo
-figure;                
-bar(1:N,abs(vek_t_env(1,:)).^2);    
-title('Vektor na ulazu, thermal bath');
-xlabel('Cvor');
-ylim([0 1])
-figure;                
-bar(1:N,abs(vek_t_env(t_br_tacaka,:)).^2);    
-title('Vektor na izlazu, thermal bath');
-xlabel('Cvor');
-ylim([0 1])
-
-%propagacija u vremenu 3d
-if tri_d
-    X=linspace(1,N,N);
-    figure;
-    mesh(X,t,abs(vek_t_env).^2);
-    colorbar;
-    title('Propagacija u vremnu, thermal bath');
-    xlabel('Cvorovi');
-    ylabel('Vreme');
-    xlim([1 (N)]);
-    ylim([0 t_kraj]);
-end
+% H_env=zeros(N,N);
+% for i=2:2*n_okoline_levo
+%     if mod(i,2)==0
+%         H_env(i,i-1)=v_env;
+%         H_env(i-1,i)=v_env;
+%     else
+%         H_env(i,i-1)=w_env;
+%         H_env(i-1,i)=w_env;
+%     end
+% end
+% H_env(2*n_okoline_levo+1,2*n_okoline_levo)=veza_okoline_i_strukture;
+% H_env(2*n_okoline_levo,2*n_okoline_levo+1)=veza_okoline_i_strukture;
+% 
+% for i=2:2*n+koliko_defekata
+%     H_env(2*n_okoline_levo+i,2*n_okoline_levo+i-1)=Hn(i,i-1);
+%     H_env(2*n_okoline_levo+i-1,2*n_okoline_levo+i)=Hn(i-1,i);
+% end
+% 
+% H_env(2*n_okoline_levo+2*n+koliko_defekata+1,2*n_okoline_levo+2*n+koliko_defekata)=veza_okoline_i_strukture;
+% H_env(2*n_okoline_levo+2*n+koliko_defekata,2*n_okoline_levo+2*n+koliko_defekata+1)=veza_okoline_i_strukture;
+% for i=2*n_okoline_levo+2*n+koliko_defekata+2:N
+%     if mod(n,2)==0
+%         if mod(i,2)==0
+%             H_env(i,i-1)=v_env;
+%             H_env(i-1,i)=v_env;
+%         else
+%             H_env(i,i-1)=w_env;
+%             H_env(i-1,i)=w_env;
+%         end
+%     else
+%         if mod(i,2)==0
+%             H_env(i,i-1)=w_env;
+%             H_env(i-1,i)=w_env;
+%         else
+%             H_env(i,i-1)=v_env;
+%             H_env(i-1,i)=v_env;
+%         end
+%     end
+% end
+% 
+% [vek_E_env,d_E_env]=eig(H_env); 
+% E_env=zeros((N),1);
+% i=0;
+% for j=1:1:N
+%     E_env(j)=d_E_env(j,j);           
+%     if abs(E_env(j))<0.2           
+%         i=i+1;
+%         zero_mode_env(i)=j;
+%     end
+% end
+% 
+% % Crtanje svojstvenih energija sa thermal bathom
+% figure;
+% scatter(1:N,E_env);
+% title('Energije svojstvenih stanja sa thermal bathom')
+% xlim([1 N]);
+% 
+% % Zero mode sa thermal bathom
+% for i=1:max(size(zero_mode))
+%     if uporedi_kada_nema_thermal_bath==1
+%         vek_pom=zeros(1,N);
+%         vek_pom(2*n_okoline_levo+1:2*n_okoline_levo+2*n+koliko_defekata)=vek_E(:,zero_mode(i));
+%         figure;
+%         bar(1:N,abs(vek_pom).^2);
+%         ylim([0 1]);
+%         title(['Bez thermal bata ' num2str(i), '. zero moda']);
+%         figure;
+%         bar(1:N,abs((vek_E_env(:,zero_mode_env(i)))).^2);
+%         ylim([0 1]);
+%         title([num2str(i), '. zero moda sa thermal bathom. Br. talasovoda levo:' num2str(2*n_okoline_levo), '; Br. talasovoda desno:' num2str(2*n_okoline_desno)]);
+%     else
+%         figure;
+%         bar(1:N,abs((vek_E_env(:,zero_mode_env(i)))).^2);
+%         ylim([0 1]);
+%         a=koliko_defekata-1;
+%         title([num2str(i), '. zero moda sa thermal bathom. Br. talasovoda levo:' num2str(2*n_okoline_levo), '; Br. talasovoda desno:' num2str(2*n_okoline_desno)]);
+%     end
+% end
+% 
+% %% Evolucija sa thermal bathom
+% 
+% % pocetni uslovi 
+% poc_uslov=zeros(N,1);
+% switch pocetni_uslov
+%     case 0
+%         poc_uslov(2*n_okoline_levo+na_koja_mesta(srednji_defekat))=1;
+%     case 1
+%         poc_uslov=vek_E_env(:,koji_sv_vektor);
+%     case 2
+%         for i=1:koliko_vek_u_sp_poz
+%             poc_uslov=(1/(sqrt(koliko_vek_u_sp_poz)))*vek_E_env(:,n+i-1)+poc_uslov;
+%         end
+%     case 3
+%         poc_uslov=vek_E_env(:,n);
+% end
+% 
+% ran=ones(N,1);
+% options = odeset('RelTol',1e-9,'AbsTol',1e-9);
+% [t,vek_t_env]=ode45(@nelinerani, t, poc_uslov, options, H_env, on_site, snaga, sp_mod, gh, ran);
+% 
+% % Sta je uslo a sta je izaslo
+% figure;                
+% bar(1:N,abs(vek_t_env(1,:)).^2);    
+% title('Vektor na ulazu, thermal bath');
+% xlabel('Cvor');
+% ylim([0 1])
+% figure;                
+% bar(1:N,abs(vek_t_env(t_br_tacaka,:)).^2);    
+% title('Vektor na izlazu, thermal bath');
+% xlabel('Cvor');
+% ylim([0 1])
+% 
+% %propagacija u vremenu 3d
+% if tri_d
+%     X=linspace(1,N,N);
+%     figure;
+%     mesh(X,t,abs(vek_t_env).^2);
+%     colorbar;
+%     title('Propagacija u vremnu, thermal bath');
+%     xlabel('Cvorovi');
+%     ylabel('Vreme');
+%     xlim([1 (N)]);
+%     ylim([0 t_kraj]);
+% end
