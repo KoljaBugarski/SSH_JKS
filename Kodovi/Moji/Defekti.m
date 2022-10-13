@@ -4,13 +4,14 @@ clc;
 
 %% parametri
 
-n=100; % koliko dimera bez umetnutih, racunajuci dva kranja
+n=49; % koliko dimera bez umetnutih, racunajuci dva kranja
 w=1.2;
 v =0.5;
-na_koja_mesta=[85 0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
+na_koja_mesta=[20 39 52 65 84 0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
 koliko_defekata=max(size(na_koja_mesta))-1;
 srednji_defekat=int8((koliko_defekata+1)/2);
-
+                                                     %pr n=49 [20 39 52 65 84]
+                                                                  
 % Pr. sa jednim defektom, n=5 defekt na 6. mestu:
 % Ako je w>v:
 % O   OO   OO   O   OO   OO   O
@@ -43,7 +44,7 @@ t=linspace(t_pocetak,t_kraj,t_br_tacaka);
 on_site=0; %onsite disorder (mora i gh=1)
 gama=0.02; % za onsite disorder
 
-sp_mod=0; % za postojanje sopstvene modulacije u Schr. jednacini
+sp_mod=1; % za postojanje sopstvene modulacije u Schr. jednacini
 
 %1-ima hopping disorder ili 0-nema
 hd=0;
@@ -57,7 +58,7 @@ tri_d=1; % da li da crrta mesh ili ne
 tir_d_cvor_predstavljen_sa_dve_tacke_na_x_osi=1;% lepse se vidi ravan xy
 
 pocetni_uslov=0; % 0-u srednji defekat sva snaga, 1-neki od svojstevih vekota,2-lin superpozicija jednakih amplituda, 3-sta god 
-svo_polje_u_koji_talasovod=2*n+koliko_defekata;
+svo_polje_u_koji_talasovod=52;
 koji_sv_vektor=n;
 koliko_vek_u_sp_poz=3;
 
@@ -328,21 +329,9 @@ for j=1:2*n+koliko_defekata
     ran(j)=gama*ran(j)*(rand*2-1);
 end
 
-
-
-
-
-for i_t=1:t_br_tacaka
-    tt=[t_pocetak+(i_t-1)*dt i_t*dt];
-    options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-    [ttt,vek_t]=ode45(@nelinerani, tt, poc_uslov, options, Hn, on_site, sp_mod, ran); 
-    poc_uslov=vek_t(max(size(ttt)),:);
-    if i_t~=1
-        vek_pravi(i_t,:)=vek_t(max(size(ttt)),:);
-    end
-end
-
-
+options = odeset('RelTol',1e-9,'AbsTol',1e-9);
+[ttt,vek_t]=ode45(@nelinerani, t, poc_uslov, options, Hn, on_site, sp_mod, ran); 
+vek_pravi=vek_t;
 
 % Sta je uslo a sta je izaslo
 figure;                
