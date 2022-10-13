@@ -1,5 +1,5 @@
 clear all;
-close all;
+%close all;
 clc;
 
 %% parametri
@@ -42,9 +42,9 @@ t=linspace(t_pocetak,t_kraj,t_br_tacaka);
 
 %nelinearnost
 on_site=0; %onsite disorder (mora i gh=1)
-gama=0.02; % za onsite disorder
-
-sp_mod=1; % za postojanje sopstvene modulacije u Schr. jednacini
+gama=1; % za onsite disorder
+kubna_nl=1; % za kubnu
+saturaciona_nl=0; %saturacionu
 
 %1-ima hopping disorder ili 0-nema
 hd=0;
@@ -58,7 +58,7 @@ tri_d=1; % da li da crrta mesh ili ne
 tir_d_cvor_predstavljen_sa_dve_tacke_na_x_osi=1;% lepse se vidi ravan xy
 
 pocetni_uslov=0; % 0-u srednji defekat sva snaga, 1-neki od svojstevih vekota,2-lin superpozicija jednakih amplituda, 3-sta god 
-svo_polje_u_koji_talasovod=52;
+svo_polje_u_koji_talasovod=51;
 koji_sv_vektor=n;
 koliko_vek_u_sp_poz=3;
 
@@ -252,23 +252,50 @@ scatter(xx(indexOfInterest),E(indexOfInterest));
 ylim([-0.5 0.5])
 xlim([zero_mode(1)-1 zero_mode(max(size(zero_mode)))+1])
  
+
 % Crtanje zero moda
-for i=1:koliko_defekata+2
-    figure;
-    bar(1:(2*n+koliko_defekata),abs((vek_E(:,n+i-1))).^2);
-    ylim([0 1]);
-    a=koliko_defekata-1;
-    if (a)
-        if w>v
-            title('Zero moda. Defekati na vise mesta. w>v');
+if w>v
+    vek_zero=zeros(2*n+koliko_defekata,koliko_defekata+2);
+    for i=1:koliko_defekata+2
+        vek_zero(:,i)=vek_E(:,n+i-1);
+        figure;
+        bar(1:(2*n+koliko_defekata),abs((vek_E(:,n+i-1))).^2);
+        ylim([0 1]);
+        a=koliko_defekata-1;
+        if (a)
+            if w>v
+                title('Zero moda. Defekati na vise mesta. w>v');
+            else
+                title('Zero moda. Defekati na vise mesta. w<v');
+            end
         else
-            title('Zero moda. Defekati na vise mesta. w<v');
+            if w>v
+                title(['Zero moda. Defekat na ' num2str(na_koja_mesta(1)), '. mestu. w>v']);
+            else
+                title(['Zero moda. Defekat na ' num2str(na_koja_mesta(1)), '. mestu. w<v']);
+            end
         end
-    else
-        if w>v
-            title(['Zero moda. Defekat na ' num2str(na_koja_mesta(1)), '. mestu. w>v']);
+    end
+else
+    vek_zero=zeros(2*n+koliko_defekata,koliko_defekata);
+    for i=1:koliko_defekata
+        vek_zero(:,i)=vek_E(:,n+i-1);
+        figure;
+        bar(1:(2*n+koliko_defekata),abs((vek_E(:,n+i-1))).^2);
+        ylim([0 1]);
+        a=koliko_defekata-1;
+        if (a)
+            if w>v
+                title('Zero moda. Defekati na vise mesta. w>v');
+            else
+                title('Zero moda. Defekati na vise mesta. w<v');
+            end
         else
-            title(['Zero moda. Defekat na ' num2str(na_koja_mesta(1)), '. mestu. w<v']);
+            if w>v
+                title(['Zero moda. Defekat na ' num2str(na_koja_mesta(1)), '. mestu. w>v']);
+            else
+                title(['Zero moda. Defekat na ' num2str(na_koja_mesta(1)), '. mestu. w<v']);
+            end
         end
     end
 end
@@ -330,7 +357,7 @@ for j=1:2*n+koliko_defekata
 end
 
 options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-[ttt,vek_t]=ode45(@nelinerani, t, poc_uslov, options, Hn, on_site, sp_mod, ran); 
+[ttt,vek_t]=ode45(@nelinerani, t, poc_uslov, options, Hn, on_site, kubna_nl, saturaciona_nl, gama, ran); 
 vek_pravi=vek_t;
 
 % Sta je uslo a sta je izaslo
@@ -503,7 +530,7 @@ ylim([0 1])
 % 
 % ran=ones(N,1);
 % options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-% [t,vek_t_env]=ode45(@nelinerani, t, poc_uslov, options, H_env, on_site, snaga, sp_mod, gh, ran);
+% [t,vek_t_env]=ode45(@nelinerani, t, poc_uslov, options, H_env, on_site, snaga, kubna_nl, gh, ran);
 % 
 % % Sta je uslo a sta je izaslo
 % figure;                

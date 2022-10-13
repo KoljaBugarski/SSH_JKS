@@ -10,7 +10,11 @@ t_kraj=500;
 dt=0.01;
 t_br_tacaka=(t_kraj-t_pocetak)/dt;
 t=linspace(t_pocetak,t_kraj,t_br_tacaka);
-sp_mod=0;
+
+kubna_nl=0;
+saturaciona_nl=0;
+gama=1;
+
 w=0.1+0.8*cos(0.00314*t);
 v=0.1+0.8*sin(0.00314*t);
 figure
@@ -67,7 +71,7 @@ vek_pravi(1,:)=poc_uslov;
 for i_t=1:t_br_tacaka
     tt=[t_pocetak+(i_t-1)*dt i_t*dt];
     options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-    [ttt,vek_t]=ode45(@zavisno_z, tt, poc_uslov, options, H(:,:,i_t), sp_mod);  
+    [ttt,vek_t]=ode45(@zavisno_z, tt, poc_uslov, options, H(:,:,i_t), kubna_nl, saturaciona_nl, gama);  
     poc_uslov=vek_t(max(size(ttt)),:);
     if i_t~=1
         vek_pravi(i_t,:)=vek_t(max(size(ttt)),:);
