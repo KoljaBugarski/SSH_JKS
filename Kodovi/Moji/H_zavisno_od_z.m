@@ -4,7 +4,7 @@ clc;
 
 %%
 
-n=12; % broj talasovoda
+n=11; % broj talasovoda
 t_pocetak=0;
 t_kraj=500;
 dt=0.01;
@@ -62,18 +62,19 @@ end
 
 %%
 
-poc_uslov=zeros(n,1);
-poc_uslov(1)=1;
-% poc_uslov=vek_E(:,6);
+% poc_uslov=zeros(n,1);  % Riplovi se dobijaju jer ovo nije svojsveni
+% poc_uslov(1)=1;        % vektor pocetnog H, ali ovaj ispod jeste
+poc_uslov=vek_E(:,6);
 vek_pravi=zeros(t_br_tacaka,n);
 vek_pravi(1,:)=poc_uslov;
 
 power=zeros(t_br_tacaka,1);
 fidelity=zeros(t_br_tacaka,1);
 IP=zeros(t_br_tacaka,1);
+
 for i_t=1:t_br_tacaka
     tt=[t_pocetak+(i_t-1)*dt i_t*dt];
-    options = odeset('RelTol',1e-9,'AbsTol',1e-9);
+    options = odeset('RelTol',1e-12,'AbsTol',1e-12);
     [ttt,vek_t]=ode45(@zavisno_z, tt, poc_uslov, options, H(:,:,i_t), kubna_nl, saturaciona_nl, gama);  
     poc_uslov=vek_t(max(size(ttt)),:);
     if i_t~=1
@@ -82,7 +83,10 @@ for i_t=1:t_br_tacaka
     power(i_t)=sum(abs(vek_pravi(i_t,:).^2));
     fidelity(i_t)=abs(conj(vek_pravi(i_t,:))*transpose(vek_pravi(1,:)));
     IP(i_t)=power(i_t)/(sum(abs(vek_pravi(i_t,:).^4)));
+
 end
+
+
 
 X=linspace(1,n,n);
 figure;

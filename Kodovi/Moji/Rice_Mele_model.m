@@ -6,6 +6,7 @@ x=[1.2 1.1 1 0.9 0.8 0.7 0.6 0.5 0.4 0.3 0.2 0.1]; % v i w
 y=[1.3 1.42 1.56 1.73 1.96 2.24 2.61 3.12 3.9 5.21 7.85 15.72]; % t 
 %%
 
+
 a=1.56;
 b=-1.003; 
 sprega=0.8;        % jedno od ova dva mora biti =0. Drugi ce biti
@@ -185,6 +186,11 @@ IP=zeros(n_t,1);
 b=1;
 bb=1;
 maxx=0;
+Pd=zeros(n_t,n);
+
+% 
+
+
 for i_t=1:n_t
     tt=[t_pocetak+(i_t-1)*dt i_t*dt];
     options = odeset('RelTol',1e-9,'AbsTol',1e-9);
@@ -196,6 +202,9 @@ for i_t=1:n_t
     power(i_t)=sum(abs(vek_pravi(i_t,:).^2));
     fidelity(i_t)=abs(conj(vek_pravi(i_t,:))*transpose(vek_pravi(1,:)));
     IP(i_t)=power(i_t)/(sum(abs(vek_pravi(i_t,:).^4)));
+    for i=1:2:2*n-1
+         Pd(i_t,i)=((i+1)/2)*(abs(vek_pravi(i_t,i))^2+abs(vek_pravi(i_t,i+1))^2);
+    end
     if abs(vek_pravi(i_t,2))^2>0.9
        vreme(b)=t(i_t);
        snaga(b)=abs(vek_pravi(i_t,2))^2;
@@ -211,6 +220,12 @@ for i_t=1:n_t
         end
     end
 end
+Pdd=zeros(n_t,1);
+
+for i=1:n_t
+    Pdd(i)=sum(Pd(i,:));
+end
+W=2*(1/t(n_t))*trapz(t,Pdd)
 
 vek_tt=zeros(n_t,2*(2*n)+1);
 for tt=1:1:n_t
