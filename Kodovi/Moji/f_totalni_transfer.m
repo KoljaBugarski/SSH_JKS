@@ -1,4 +1,4 @@
-function [L]=totalni_transfer(v)
+function [L]=f_totalni_transfer(v)
 % Racuna duzinu talasovoda za koje dodje do maksimalnog transfera iz jednog
 % talasovoda u drugi kada postoji sprega samo izmedju njih,
 % za odgovarajucu vrednost koeficijenta sprezanja v

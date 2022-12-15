@@ -1,4 +1,4 @@
-function [La,izlaz,fun,H]=WGA_kontinualan(n,psi_out)
+function [La,izlaz,fun,H]=f_WGA_kontinualan(n,psi_out)
 % Racuna duzine odgovarajucih delova strukture kako bi se dobio zeljeni
 % kapler
 od_koliko=0.2;

@@ -15,8 +15,8 @@ clc;
 n=9; % broj talasovoda
 v=1.2; % koeficijent sprege
 
-L12=iz_keca_u_dvojku(v);
-Ltotal=totalni_transfer(v);
+L12=f_iz_keca_u_dvojku(v);
+Ltotal=f_totalni_transfer(v);
 k=(1/2)*n-(3/2);
 LL=zeros(1,k);
 if n==3

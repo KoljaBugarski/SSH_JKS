@@ -375,7 +375,7 @@ for j=1:2*n+koliko_defekata
 end
 
 options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-[ttt,vek_t]=ode45(@nelinerani, t, poc_uslov, options, Hn, on_site, kubna_nl, saturaciona_nl, gama, ran); 
+[ttt,vek_t]=ode45(@f_nelinearni, t, poc_uslov, options, Hn, on_site, kubna_nl, saturaciona_nl, gama, ran); 
 vek_pravi=vek_t;
 
 power=zeros(t_br_tacaka,1);
@@ -569,7 +569,7 @@ ylim([0 1])
 % 
 % ran=ones(N,1);
 % options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-% [t,vek_t_env]=ode45(@nelinerani, t, poc_uslov, options, H_env, on_site, snaga, kubna_nl, gh, ran);
+% [t,vek_t_env]=ode45(@f_nelinearni, t, poc_uslov, options, H_env, on_site, snaga, kubna_nl, gh, ran);
 % 
 % % Sta je uslo a sta je izaslo
 % figure;                

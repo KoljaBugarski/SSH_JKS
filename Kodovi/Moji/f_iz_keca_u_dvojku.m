@@ -1,4 +1,4 @@
-function [L]=iz_keca_u_dvojku(v)
+function [L]=f_iz_keca_u_dvojku(v)
 % Racuna duzinu talasovoda za koje dodje do prelaska iz sredisnjeg
 % talasovoda u dva bocna pri cemu je odnos snaga u bocnim talasovodima
 % 50/50, za odgovarajucu vrednost koeficijenta sprezanja v

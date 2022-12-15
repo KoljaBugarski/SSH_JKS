@@ -1,4 +1,4 @@
-function [La,izlaz,H]=WGA_isprekidan(n,psi_out)
+function [La,izlaz,H]=f_WGA_isprekidan(n,psi_out)
 % Racuna duzine odgovarajucih delova strukture kako bi se dobio zeljeni
 % kapler
 od_koliko=0.2;

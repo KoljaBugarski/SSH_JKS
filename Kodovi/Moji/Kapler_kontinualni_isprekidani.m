@@ -10,15 +10,15 @@ clc;
 %             |||||||                            |     |
 
 n=7; % broj talasovoda
-psi_out=[1 0 0 1 0 0 1]'; % zeljeni izlaz
+psi_out=[1 0 0 0 0 0 1]'; % zeljeni izlaz
 psi_out=(1/sqrt(sum(abs(psi_out).^2)))*psi_out;
-[L_KON,psi_outKON,funKON,H_KON]=WGA_kontinualan(n,psi_out);
+[L_KON,psi_outKON,funKON,H_KON]=f_WGA_kontinualan(n,psi_out);
 figure;
 bar(1:n,abs(psi_outKON).^2);
 ylim([0 1])
 if psi_out(1)==1/sqrt(2)
     if n~=3
-        [L_ISP,psi_outISP,H_ISP]=WGA_isprekidan(n,psi_out);
+        [L_ISP,psi_outISP,H_ISP]=f_WGA_isprekidan(n,psi_out);
         figure;
         bar(1:n,abs(psi_outISP).^2);
         ylim([0 1]);

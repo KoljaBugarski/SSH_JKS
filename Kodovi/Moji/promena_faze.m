@@ -194,7 +194,7 @@ for j=1:2*n+koliko_defekata
 end
 
 options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-[ttt,vek_t]=ode45(@nelinerani, t, poc_uslov, options, Hn, on_site, kubna_nl, saturaciona_nl, gama, ran); 
+[ttt,vek_t]=ode45(@f_nelinearni, t, poc_uslov, options, Hn, on_site, kubna_nl, saturaciona_nl, gama, ran); 
 vek_pravi=vek_t;
 
 power=zeros(t_br_tacaka,1);
