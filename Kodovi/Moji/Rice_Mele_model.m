@@ -22,7 +22,7 @@ n=5;
 
 dt=0.01;
 t_pocetak=0;
-t_kraj=120;
+t_kraj=20;
 
 k=round(t1);
 if t1>k
@@ -128,14 +128,16 @@ for j=2:kk
 end
 
 figure 
-plot(t,u_t, 'g')
-hold on;
 plot(t,v_t, 'b')
 hold on;
 plot(t,w_t, 'r')
 hold on;
+legend('v','w');
+ylim([-0.1 1])
 
-
+v_t(1:2001)=1;
+u_t(1:2001)=0;
+w_t(1:2001)=0;
 %%
 H=zeros(2*n,2*n,n_t);
 for i=1:2*n
@@ -162,15 +164,15 @@ end
 %% Snapshots eigenvalues
 
 E=zeros(2*n,n_t);
-vek_E=zeros(2*n,2*n,n_t);
-for i=1:n_t
+vek_E=zeros(2*n,2*n,1);
+for i=1:1
     [vek_E(:,:,i),d]=eig(H(:,:,i));
     E(:,i)=diag(d);
 end
-% figure
-% plot(t,E(n-1,:));
-% figure
-% plot(t,E(n+1+1,:));
+figure
+bar(1:2*n,vek_E(:,n,1));
+figure
+bar(1:2*n,vek_E(:,n+1,1));
 
 
 %%
@@ -244,3 +246,7 @@ xlabel('Cvorovi');
 ylabel('Vreme');
 xlim([1 2*(n*2)+1]);
 ylim([0 t_kraj]);
+figure
+bar(1:2*n,angle(vek_pravi(n_t,:))/pi)
+
+% Promena faze na kraju je za -pi/2

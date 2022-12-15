@@ -18,10 +18,10 @@ gama=1;
 w=0.1+0.8*cos(0.00314*t);
 v=0.1+0.8*sin(0.00314*t);
 figure
-plot(t,w);
+plot(t,w,'b');
 hold on;
-plot(t,v);
-hold on;
+plot(t,v,'r');
+legend('w','v');
 
 %%
 H=zeros(n,n,t_br_tacaka);

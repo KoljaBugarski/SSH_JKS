@@ -1,17 +1,17 @@
 clear all;
-%close all;
+close all;
 clc;
 
 %% parametri
 
-n=50; % koliko dimera bez umetnutih, racunajuci dva kranja
-w=0.5;
-v =1.2;
-for i =1:10
-    defekti(i)=uint32(rand*100);
-end
-defekti=sort(defekti);
-na_koja_mesta=[0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
+n=1; % koliko dimera bez umetnutih, racunajuci dva kranja
+v=1;
+w =1.2;
+% for i =1:10
+%     defekti(i)=uint32(rand*100);
+% end
+% defekti=sort(defekti);
+na_koja_mesta=[0 2]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
 koliko_defekata=max(size(na_koja_mesta))-1;
 srednji_defekat=int8((koliko_defekata+1)/2);
                                                      %pr n=98 [20 39 52 65 84]
@@ -39,15 +39,15 @@ srednji_defekat=int8((koliko_defekata+1)/2);
 %                      012   34   56
 
 t_pocetak=0;
-t_kraj=500;
+t_kraj=8;
 dt=0.01;
 t_br_tacaka=(t_kraj-t_pocetak)/dt;
 t=linspace(t_pocetak,t_kraj,t_br_tacaka);
 
 %nelinearnost
 on_site=0; %onsite disorder (mora i gh=1)
-gama=5; % za onsite disorder
-kubna_nl=1; % za kubnu
+gama=0.03; % za onsite disorder
+kubna_nl=0; % za kubnu
 saturaciona_nl=0; %saturacionu
 
 %1-ima hopping disorder ili 0-nema
@@ -61,10 +61,11 @@ per_na_poc_vek=0.05; % koliko jaka perturbacija
 tri_d=1; % da li da crrta mesh ili ne
 tir_d_cvor_predstavljen_sa_dve_tacke_na_x_osi=1;% lepse se vidi ravan xy
 
-pocetni_uslov=4; % 0-u srednji defekat sva snaga, 1-neki od svojstevih vekota,2-lin superpozicija edge moda, 3-sta god 
-svo_polje_u_koji_talasovod=n;
-koji_sv_vektor=n;
-koliko_vek_u_sp_poz=3;
+pocetni_uslov=5; % 0-u talasovod sva snaga, 1-neki od svojstevih vekota,2-lin superpozicija edge moda PLUS, 3-lin superpozicija edge moda MINUS
+                    %5- superpozicija dva 
+svo_polje_u_koji_talasovod=2;
+koji_sv_vektor=7;
+koliko_vek_u_sp_poz=2;
 
 %thermal bath
 n_okoline_levo=5;
@@ -263,14 +264,22 @@ if w>v
     for i=1:koliko_defekata+2
         vek_zero(:,i)=vek_E(:,n+i-1);
         figure;
-        bar(1:(2*n+koliko_defekata),abs((vek_E(:,n+i-1))).^2);
-        ylim([0 1]);
+        bar(1:(2*n+koliko_defekata),(vek_E(:,n+i-1)));
+        ylim([-1 1]);
         a=koliko_defekata-1;
         if (a)
-            if w>v
-                title('Zero moda. Defekati na vise mesta. w>v');
+            if a==-1
+                if w>v
+                    title('Zero moda. Nema defekata w>v');
+                else
+                    title('Zero moda. Nema defekata w<v');
+                end
             else
-                title('Zero moda. Defekati na vise mesta. w<v');
+                if w>v
+                    title('Zero moda. Defekati na vise mesta. w>v');
+                else
+                    title('Zero moda. Defekati na vise mesta. w<v');
+                end
             end
         else
             if w>v
@@ -285,8 +294,8 @@ else
     for i=1:koliko_defekata
         vek_zero(:,i)=vek_E(:,n+i-1);
         figure;
-        bar(1:(2*n+koliko_defekata),abs((vek_E(:,n+i-1))).^2);
-        ylim([0 1]);
+        bar(1:(2*n+koliko_defekata),abs(vek_E(:,n+i-1)));
+        ylim([-1 1]);
         a=koliko_defekata-1;
         if (a)
             if w>v
@@ -315,13 +324,15 @@ switch pocetni_uslov
         poc_uslov=vek_E(:,koji_sv_vektor);
     case 2
         fi=0;
-        poc_uslov(1)=1;
-        poc_uslov(max(size(poc_uslov)))=1*exp((1i)*fi);
-        poc_uslov=1/(sqrt(2))*poc_uslov;
+        poc_uslov=(1/sqrt(2))*(vek_E(:,n)+vek_E(:,n+1));
     case 3
-        poc_uslov=vek_E(:,n);
+        poc_uslov=(1/sqrt(2))*(vek_E(:,n)-vek_E(:,n+1));
     case 4
         poc_uslov=(1/sqrt(2*n+koliko_defekata))*ones(2*n+koliko_defekata,1);
+    case 5
+        poc_uslov(1)=1;
+        poc_uslov(2*n+koliko_defekata)=1;
+        poc_uslov=(1/sqrt(2))*poc_uslov;
 end
 
 % perturbacija na ulazni vektor
@@ -415,7 +426,7 @@ end
 
 % Jedan cvor 2 tacke na x osi
 if tir_d_cvor_predstavljen_sa_dve_tacke_na_x_osi
-    if n<6
+    if n<7
         vek_tt=zeros(t_br_tacaka,2*(2*n+koliko_defekata)+1);
         for tt=1:1:t_br_tacaka
             for i=1:1:2*n+koliko_defekata
@@ -584,3 +595,5 @@ ylim([0 1])
 %     xlim([1 (N)]);
 %     ylim([0 t_kraj]);
 % end
+
+%%
