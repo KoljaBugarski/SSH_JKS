@@ -1,10 +1,10 @@
-function [La,izlaz,fun,H]=f_WGA_SVI_OSIM_SREDNJEG(n,psi_out)
+function [La,izlaz,fun,H,kk]=f_WGA_SVI_OSIM_SREDNJEG(n,psi_out)
 % Racuna duzine odgovarajucih delova strukture kako bi se dobio zeljeni
 % kapler
 od_koliko=0.2;
-do_koliko=2;
+do_koliko=5;
 korak=0.1;
-broj=(do_koliko-od_koliko)/korak+1;
+broj=uint32((do_koliko-od_koliko)/korak+1);
 psi_in=zeros(1,n)';
 psi_in(fix(n/2)+1)=1;
 H=zeros(n,n,2);
@@ -31,10 +31,11 @@ min=10;
 for j=1:broj
     for k=1:broj
         psi_outA=expm(-1i*H(:,:,2)*L(2,j))*expm(-1i*H(:,:,1)*L(1,k))*psi_in;
-        if min > sum(abs(abs(psi_out).^2-abs(psi_outA).^2))
+        if min > sum(abs(abs(psi_out).^2-abs(psi_outA).^2)) && abs(psi_outA((fix(n/2)+1)))^2<0.001
             min=sum(abs(abs(psi_out).^2-abs(psi_outA).^2));
             L1=L(1,k);
             L2=L(2,j);
+            kk=abs(psi_outA((fix(n/2)+1)))^2;
         end
     end
 end
