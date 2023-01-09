@@ -28,7 +28,7 @@ else
     L=[L12 LL 1 LL L12];
 end
 
-nn=21;
+nn=101;
 promena_faze=linspace(-pi,pi,nn);
 izlaz=zeros(n,nn);
 for iii=1:nn
