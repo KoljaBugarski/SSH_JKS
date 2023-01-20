@@ -2,7 +2,11 @@ function [t1,vek]=f_transfer1ujenda_polovina(v,t)
 % vreme/duzina za totalni transfer na osnovu koeficijenta sprege
 gama=0;
 kubna=0;
-saturaciona=0; % moguce nelinearnosti
+saturaciona=0; 
+on_site=0;
+ran=zeros(1,2);
+
+% moguce nelinearnosti
 
 
 H=[0 v;v 0];
@@ -15,7 +19,7 @@ while b
     i_t=i_t+1;
     tt=[t(1)+(i_t-1)*dt i_t*dt];
     options = odeset('RelTol',1e-12,'AbsTol',1e-12);
-    [ttt,vek_t]=ode45(@f_zavisno_z, tt, poc_uslov, options, H, kubna, saturaciona, gama);  
+    [ttt,vek_t]=ode45(@f_evolucija, tt, poc_uslov, options, H, kubna, saturaciona, gama, ran, on_site);  
     poc_uslov=vek_t(max(size(ttt)),:);
     if i_t~=1
         vek_pravi(i_t,:)=vek_t(max(size(ttt)),:);

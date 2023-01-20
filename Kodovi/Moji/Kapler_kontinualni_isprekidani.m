@@ -10,7 +10,7 @@ clc;
 %      |||||||                      |     |
 
 n=9; % broj talasovoda
-psi_out=[1  1 1 1 1 1 1 1 1]'; % zeljeni izlaz
+psi_out=[1 0 0 0 0 0 0 0 1]'; % zeljeni izlaz
 psi_out=(1/sqrt(sum(abs(psi_out).^2)))*psi_out;
 [L_KON,psi_outKON,funKON,H_KON]=f_WGA_kontinualan(n,psi_out);
 figure;
