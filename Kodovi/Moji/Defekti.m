@@ -369,13 +369,13 @@ if hd
 end
 
 % onsite disorder
-ran=ones(2*n+koliko_defekata,1);
+ran=zeros(2*n+koliko_defekata,1);
 for j=1:2*n+koliko_defekata
     ran(j)=gama*ran(j)*(rand*2-1);
 end
 
 options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-[ttt,vek_t]=ode45(@f_nelinearni, t, poc_uslov, options, Hn, on_site, kubna_nl, saturaciona_nl, gama, ran); 
+[ttt,vek_t]=ode45(@f_evolucija, t, poc_uslov, options, Hn, kubna_nl, saturaciona_nl, gama, ran, on_site); 
 vek_pravi=vek_t;
 
 power=zeros(t_br_tacaka,1);

@@ -8,7 +8,7 @@ v2=1; % koeficijent sprege za n talasovoda
 
 t_pocetak=0;
 t_kraj=50;
-dt=0.001;
+dt=0.0001;
 n_t=uint32((t_kraj-t_pocetak)/dt+1);
 t=linspace(t_pocetak,t_kraj,n_t);   % vremenski/duzinski opseg
 

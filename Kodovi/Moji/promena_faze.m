@@ -193,8 +193,13 @@ for j=1:2*n+koliko_defekata
     ran(j)=gama*ran(j)*(rand*2-1);
 end
 
+%nelinearnost
+on_site=0; %onsite disorder (mora i gh=1)
+gama=0; % za onsite disorder
+kubna_nl=0; % za kubnu
+saturaciona_nl=0; %saturacionu
 options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-[ttt,vek_t]=ode45(@f_nelinearni, t, poc_uslov, options, Hn, on_site, kubna_nl, saturaciona_nl, gama, ran); 
+[ttt,vek_t]=ode45(@f_evolucija, t, poc_uslov, options, Hn, kubna_nl, saturaciona_nl, gama, ran, on_site); 
 vek_pravi=vek_t;
 
 power=zeros(t_br_tacaka,1);

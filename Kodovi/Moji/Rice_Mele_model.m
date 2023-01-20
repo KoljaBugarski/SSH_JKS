@@ -38,9 +38,6 @@ kk=round((n_t-1)/(2*n1+2*n2));
 t=linspace(t_pocetak,t_kraj,n_t);
 
 
-kubna_nl=0;
-saturaciona_nl=0;
-gama=0;
 
 % f_t=zeros(1,3*n_t);
 % for i=1:n_t
@@ -191,43 +188,48 @@ maxx=0;
 Pd=zeros(n_t,n);
 
 % 
+kubna_nl=0;
+saturaciona_nl=0;
+gama=0;
+on_site=0;
+ran=zeros(1,max(size(vek_E)));
+vek_pravi=f_evolucija_zavisno_z(t,poc_uslov,H,kubna_nl, saturaciona_nl, gama,ran,on_site);
 
-
-for i_t=1:n_t
-    tt=[t_pocetak+(i_t-1)*dt i_t*dt];
-    options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-    [ttt,vek_t]=ode45(@f_zavisno_z, tt, poc_uslov, options, H(:,:,i_t), kubna_nl, saturaciona_nl, gama);  
-    poc_uslov=vek_t(max(size(ttt)),:);
-    if i_t~=1
-        vek_pravi(i_t,:)=vek_t(max(size(ttt)),:);
-    end
-    power(i_t)=sum(abs(vek_pravi(i_t,:).^2));
-    fidelity(i_t)=abs(conj(vek_pravi(i_t,:))*transpose(vek_pravi(1,:)));
-    IP(i_t)=power(i_t)/(sum(abs(vek_pravi(i_t,:).^4)));
-    for i=1:2:2*n-1
-         Pd(i_t,i)=((i+1)/2)*(abs(vek_pravi(i_t,i))^2+abs(vek_pravi(i_t,i+1))^2);
-    end
-    if abs(vek_pravi(i_t,2))^2>0.9
-       vreme(b)=t(i_t);
-       snaga(b)=abs(vek_pravi(i_t,2))^2;
-       b=b+1;
-    end
-    if abs(vek_pravi(i_t,2*n))^2>0.99
-        trenutak(bb)=t(i_t);
-        snaga_u_pos(bb)=abs(vek_pravi(i_t,2*n))^2;
-        bb=bb+1;
-        if abs(vek_pravi(i_t,2*n))^2>maxx
-            maxx=abs(vek_pravi(i_t,2*n))^2;
-            trenutak_max=t(i_t);
-        end
-    end
-end
-Pdd=zeros(n_t,1);
-
-for i=1:n_t
-    Pdd(i)=sum(Pd(i,:));
-end
-W=2*(1/t(n_t))*trapz(t,Pdd)
+% for i_t=1:n_t
+%     tt=[t_pocetak+(i_t-1)*dt i_t*dt];
+%     options = odeset('RelTol',1e-9,'AbsTol',1e-9);
+%     [ttt,vek_t]=ode45(@f_zavisno_z, tt, poc_uslov, options, H(:,:,i_t), kubna_nl, saturaciona_nl, gama);  
+%     poc_uslov=vek_t(max(size(ttt)),:);
+%     if i_t~=1
+%         vek_pravi(i_t,:)=vek_t(max(size(ttt)),:);
+%     end
+%     power(i_t)=sum(abs(vek_pravi(i_t,:).^2));
+%     fidelity(i_t)=abs(conj(vek_pravi(i_t,:))*transpose(vek_pravi(1,:)));
+%     IP(i_t)=power(i_t)/(sum(abs(vek_pravi(i_t,:).^4)));
+%     for i=1:2:2*n-1
+%          Pd(i_t,i)=((i+1)/2)*(abs(vek_pravi(i_t,i))^2+abs(vek_pravi(i_t,i+1))^2);
+%     end
+%     if abs(vek_pravi(i_t,2))^2>0.9
+%        vreme(b)=t(i_t);
+%        snaga(b)=abs(vek_pravi(i_t,2))^2;
+%        b=b+1;
+%     end
+%     if abs(vek_pravi(i_t,2*n))^2>0.99
+%         trenutak(bb)=t(i_t);
+%         snaga_u_pos(bb)=abs(vek_pravi(i_t,2*n))^2;
+%         bb=bb+1;
+%         if abs(vek_pravi(i_t,2*n))^2>maxx
+%             maxx=abs(vek_pravi(i_t,2*n))^2;
+%             trenutak_max=t(i_t);
+%         end
+%     end
+% end
+% Pdd=zeros(n_t,1);
+% 
+% for i=1:n_t
+%     Pdd(i)=sum(Pd(i,:));
+% end
+% W=2*(1/t(n_t))*trapz(t,Pdd)
 
 vek_tt=zeros(n_t,2*(2*n)+1);
 for tt=1:1:n_t
