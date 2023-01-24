@@ -4,14 +4,14 @@ clc;
 
 %% parametri
 
-n=1; % koliko dimera bez umetnutih, racunajuci dva kranja
-v=1;
+n=5; % koliko dimera bez umetnutih, racunajuci dva kranja
+v=0.2;
 w =1.2;
 % for i =1:10
 %     defekti(i)=uint32(rand*100);
 % end
 % defekti=sort(defekti);
-na_koja_mesta=[0 2]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
+na_koja_mesta=[6 0]; % mora 0 na kraju da stoji, defekat ce u novoj strukturi biti talasovod sa tim rednim brojem
 koliko_defekata=max(size(na_koja_mesta))-1;
 srednji_defekat=int8((koliko_defekata+1)/2);
                                                      %pr n=98 [20 39 52 65 84]
@@ -41,8 +41,8 @@ srednji_defekat=int8((koliko_defekata+1)/2);
 t_pocetak=0;
 t_kraj=8;
 dt=0.01;
-t_br_tacaka=(t_kraj-t_pocetak)/dt;
-t=linspace(t_pocetak,t_kraj,t_br_tacaka);
+n_t=((t_kraj-t_pocetak)/dt)+1;
+t=linspace(t_pocetak,t_kraj,n_t);
 
 %nelinearnost
 on_site=0; %onsite disorder (mora i gh=1)
@@ -378,11 +378,11 @@ options = odeset('RelTol',1e-9,'AbsTol',1e-9);
 [ttt,vek_t]=ode45(@f_evolucija, t, poc_uslov, options, Hn, kubna_nl, saturaciona_nl, gama, ran, on_site); 
 vek_pravi=vek_t;
 
-power=zeros(t_br_tacaka,1);
-fidelity=zeros(t_br_tacaka,1);
-IP=zeros(t_br_tacaka,1);
-Pd=zeros(t_br_tacaka,n);
-for i_t=1:t_br_tacaka
+power=zeros(n_t,1);
+fidelity=zeros(n_t,1);
+IP=zeros(n_t,1);
+Pd=zeros(n_t,n);
+for i_t=1:n_t
     power(i_t)=sum(abs(vek_pravi(i_t,:).^2));
     fidelity(i_t)=abs(conj(vek_pravi(i_t,:))*transpose(vek_pravi(1,:)));
     IP(i_t)=power(i_t)/(sum(abs(vek_pravi(i_t,:).^4)));
@@ -392,11 +392,11 @@ for i_t=1:t_br_tacaka
         end
     end
 end
-Pdd=zeros(t_br_tacaka,1);
-for i=1:t_br_tacaka
+Pdd=zeros(n_t,1);
+for i=1:n_t
     Pdd(i)=sum(Pd(i,:));
 end
-W=2*(1/t(t_br_tacaka))*trapz(t,Pdd)
+W=2*(1/t(n_t))*trapz(t,Pdd)
 
 
 % Sta je uslo a sta je izaslo
@@ -406,7 +406,7 @@ title('Vektor na ulazu');
 xlabel('Cvor');
 ylim([0 1])
 figure;                
-bar(1:2*n+koliko_defekata,abs(vek_pravi(t_br_tacaka,:)).^2);    
+bar(1:2*n+koliko_defekata,abs(vek_pravi(n_t,:)).^2);    
 title('Vektor na izlazu');
 xlabel('Cvor');
 ylim([0 1])
@@ -427,8 +427,8 @@ end
 % Jedan cvor 2 tacke na x osi
 if tir_d_cvor_predstavljen_sa_dve_tacke_na_x_osi
     if n<7
-        vek_tt=zeros(t_br_tacaka,2*(2*n+koliko_defekata)+1);
-        for tt=1:1:t_br_tacaka
+        vek_tt=zeros(n_t,2*(2*n+koliko_defekata)+1);
+        for tt=1:1:n_t
             for i=1:1:2*n+koliko_defekata
                 vek_tt(tt,i*2-1)=vek_pravi(tt,i);
                 vek_tt(tt,i*2)=vek_pravi(tt,i);
@@ -449,8 +449,8 @@ end
 
 % Racunanje snage na ivicama
 maxx=0;
-P=zeros(t_br_tacaka,2*n+koliko_defekata);
-for tt=1:t_br_tacaka
+P=zeros(n_t,2*n+koliko_defekata);
+for tt=1:n_t
     for j=1:2*n+koliko_defekata
         P(tt,j)=conj(vek_pravi(tt,j))*transpose(vek_pravi(tt,j));
     end
@@ -578,7 +578,7 @@ ylim([0 1])
 % xlabel('Cvor');
 % ylim([0 1])
 % figure;                
-% bar(1:N,abs(vek_t_env(t_br_tacaka,:)).^2);    
+% bar(1:N,abs(vek_t_env(n_t,:)).^2);    
 % title('Vektor na izlazu, thermal bath');
 % xlabel('Cvor');
 % ylim([0 1])
