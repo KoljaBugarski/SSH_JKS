@@ -43,7 +43,7 @@ switch (n)
         izlaz=expm(-1i*H(:,:,1)*La(1))*psi_in;
         P_target=abs(psi_out).^2;
         P_simulated=abs(izlaz).^2;
-        sp=(sum(P_target-P_simulated).^2)/n;
+        sp=sum((P_target-P_simulated).^2)/n;
     case 5
         L=zeros(fix(n/2),broj);
         for i=1:fix(n/2)
@@ -84,7 +84,7 @@ switch (n)
         izlaz=expm(-1i*H(:,:,2)*La(2))*expm(-1i*H(:,:,1)*La(1))*psi_in;
         P_target=abs(psi_out).^2;
         P_simulated=abs(izlaz).^2;
-        sp=(sum(P_target-P_simulated).^2)/n;
+        sp=sum((P_target-P_simulated).^2)/n;
     case 7
         L=zeros(fix(n/2),broj);
         for i=1:fix(n/2)
@@ -128,7 +128,7 @@ switch (n)
         izlaz=expm(-1i*H(:,:,3)*La(3))*expm(-1i*H(:,:,2)*La(2))*expm(-1i*H(:,:,1)*La(1))*psi_in;
         P_target=abs(psi_out).^2;
         P_simulated=abs(izlaz).^2;
-        sp=(sum(P_target-P_simulated).^2)/n;
+        sp=sum((P_target-P_simulated).^2)/n;
     case 9
         L=zeros(fix(n/2),broj);
         for i=1:fix(n/2)
@@ -175,6 +175,6 @@ switch (n)
         izlaz=expm(-1i*H(:,:,4)*La(4))*expm(-1i*H(:,:,3)*La(3))*expm(-1i*H(:,:,2)*La(2))*expm(-1i*H(:,:,1)*La(1))*psi_in;
         P_target=abs(psi_out).^2;
         P_simulated=abs(izlaz).^2;
-        sp=(sum(P_target-P_simulated).^2)/n;
+        sp=sum((P_target-P_simulated).^2)/n;
 end
 end

@@ -54,5 +54,5 @@ La=x;
 izlaz=expm(-1i*H(:,:,2)*La(2))*expm(-1i*H(:,:,1)*La(1))*psi_in;
 P_target=abs(psi_out).^2;
 P_simulated=abs(izlaz).^2;
-sp=(sum(P_target-P_simulated).^2)/n;
+sp=sum((P_target-P_simulated).^2)/n;
 end
