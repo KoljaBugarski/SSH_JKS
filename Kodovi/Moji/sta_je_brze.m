@@ -4,7 +4,7 @@ clc
 %%
 v1=1; % koeficijent sprege za 3 talasovoda
 n=11; % broj talasovoda 
-v2=1; % koeficijent sprege za n talasovoda
+v2=1.00295212391514; % koeficijent sprege za n talasovoda
 
 t_pocetak=0;
 t_kraj=50;
